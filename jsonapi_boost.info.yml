@@ -1,0 +1,8 @@
+name: 'JSON:API Boost'
+description: Improve the performance of the JSON:API module with a cache-warming strategy.
+type: module
+core: 8.x
+dependencies:
+  - jsonapi:jsonapi (>=8.x-2.0)
+  - jsonapi_extras:jsonapi_extras (>=8.x-3.0)
+  - warmer:warmer
