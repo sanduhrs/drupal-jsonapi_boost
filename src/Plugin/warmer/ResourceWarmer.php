@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
+use Drupal\jsonapi_extras\Entity\JsonapiResourceConfig;
 use Drupal\jsonapi_extras\EntityToJsonApi;
 use Drupal\warmer\Plugin\WarmerPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -120,7 +121,8 @@ final class ResourceWarmer extends WarmerPluginBase {
    */
   public function warmMultiple(array $items = []) {
     $normalizations = array_map(function (EntityInterface $entity) {
-      return \Drupal::service('jsonapi_extras.entity.to_jsonapi')->normalize($entity);
+      return \Drupal::service('jsonapi_extras.entity.to_jsonapi')
+        ->normalize($entity);
     }, $items);
     count($normalizations);
   }
@@ -131,9 +133,15 @@ final class ResourceWarmer extends WarmerPluginBase {
   public function buildIdsBatch($cursor) {
     $configuration = $this->getConfiguration();
     if (empty($this->iids) && !empty($configuration['resource_types'])) {
-      $resource_type_ids = array_filter(array_values($configuration['resource_types']));
+      $resource_config_ids = array_filter(array_values($configuration['resource_types']));
       sort($resource_type_ids);
-      $this->iids = array_reduce($resource_type_ids, function ($iids, $resource_type_name) {
+      $this->iids = array_reduce($resource_config_ids, function ($iids, $resource_config_id) {
+        $resource_config = $this->entityTypeManager
+          ->getStorage('jsonapi_resource_config')
+          ->load($resource_config_id);
+        $resource_type_name = $resource_config instanceof JsonapiResourceConfig
+          ? $resource_config->get('resourceType')
+          : $resource_config_id;
         $resource_type = $this->resourceTypeRepository->getByTypeName($resource_type_name);
         $entity_type_id = $resource_type->getEntityTypeId();
         $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
@@ -151,8 +159,8 @@ final class ResourceWarmer extends WarmerPluginBase {
         $results = $query->execute();
         $entity_ids = array_filter((array) array_values($results));
         return array_unique(array_merge($iids, array_map(
-          function ($id) use ($resource_type_name, $entity_type_id) {
-            return sprintf('%s:%s:%s', $entity_type_id, $id, $resource_type_name);
+          function ($id) use ($resource_config_id, $entity_type_id) {
+            return sprintf('%s:%s:%s', $entity_type_id, $id, $resource_config_id);
           },
           $entity_ids
         )));
@@ -172,7 +180,9 @@ final class ResourceWarmer extends WarmerPluginBase {
     $form = parent::buildConfigurationForm($form, $form_state);
     $options = [];
     foreach ($this->resourceTypeRepository->all() as $resource_type) {
-      $options[$resource_type->getTypeName()] = $resource_type->getPath();
+      /** @var \Drupal\jsonapi_extras\ResourceType\ConfigurableResourceType $resource_type */
+      $key = $resource_type->getJsonapiResourceConfig()->id();
+      $options[$key] = $resource_type->getPath();
     }
     $configuration = $this->getConfiguration();
     $plugin_id = $configuration['id'];
