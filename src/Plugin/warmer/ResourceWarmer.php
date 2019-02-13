@@ -131,7 +131,7 @@ final class ResourceWarmer extends WarmerPluginBase {
     $configuration = $this->getConfiguration();
     if (empty($this->iids) && !empty($configuration['resource_types'])) {
       $resource_config_ids = array_filter(array_values($configuration['resource_types']));
-      sort($resource_type_ids);
+      sort($resource_config_ids);
       $this->iids = array_reduce($resource_config_ids, function ($iids, $resource_config_id) {
         $resource_config = $this->entityTypeManager
           ->getStorage('jsonapi_resource_config')
