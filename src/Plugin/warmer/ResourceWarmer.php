@@ -120,10 +120,7 @@ final class ResourceWarmer extends WarmerPluginBase {
    * {@inheritdoc}
    */
   public function warmMultiple(array $items = []) {
-    $normalizations = array_map(function (EntityInterface $entity) {
-      return \Drupal::service('jsonapi_extras.entity.to_jsonapi')
-        ->normalize($entity);
-    }, $items);
+    $normalizations = array_map([$this->entityToJsonapi, 'normalize'], $items);
     count($normalizations);
   }
 
