@@ -3,9 +3,8 @@
 namespace Drupal\jsonapi_boost\Plugin\warmer;
 
 use Drupal\Core\Annotation\Translation;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformStateInterface;
 use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Drupal\jsonapi_extras\Entity\JsonapiResourceConfig;
 use Drupal\jsonapi_extras\EntityToJsonApi;
@@ -173,8 +172,7 @@ final class ResourceWarmer extends WarmerPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form = parent::buildConfigurationForm($form, $form_state);
+  public function addMoreConfigurationFormElements(array $form, SubformStateInterface $form_state) {
     $options = [];
     foreach ($this->resourceTypeRepository->all() as $resource_type) {
       /** @var \Drupal\jsonapi_extras\ResourceType\ConfigurableResourceType $resource_type */
@@ -182,8 +180,7 @@ final class ResourceWarmer extends WarmerPluginBase {
       $options[$key] = $resource_type->getPath();
     }
     $configuration = $this->getConfiguration();
-    $plugin_id = $configuration['id'];
-    $form[$plugin_id]['resource_types'] = [
+    $form['resource_types'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Resource Types'),
       '#description' => $this->t('Enable the JSON:API resource types to warm asynchronously.'),
