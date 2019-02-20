@@ -1,0 +1,14 @@
+services:
+  jsonapi_boost.entity_normalization_cacher:
+    decorates: jsonapi.normalization_cacher
+    class: Drupal\jsonapi_boost\EventSubscriber\EntityNormalizationCacher
+    calls:
+      - ['setRenderCache', ['@render_cache']]
+    tags:
+      - { name: event_subscriber }
+  cache.jsonapi_normalizations:
+    class: Drupal\Core\Cache\CacheBackendInterface
+    tags:
+      - { name: cache.bin }
+    factory: cache_factory:get
+    arguments: [jsonapi_normalizations]
