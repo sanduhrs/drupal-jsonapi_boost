@@ -3,6 +3,6 @@ description: Improve the performance of the JSON:API module with a cache-warming
 type: module
 core: 8.x
 dependencies:
-  - jsonapi:jsonapi (>=8.x-2.0)
+  - drupal:jsonapi
   - jsonapi_extras:jsonapi_extras (>=8.x-3.0)
   - warmer:warmer
