@@ -1,0 +1,12 @@
+{
+    "name": "drupal/jsonapi_boost",
+    "description": "Improve the performance of the JSON:API module with a cache-warming strategy.",
+    "type": "drupal-module",
+    "homepage": "https://www.drupal.org/project/jsonapi_boost",
+    "license": "GPL-2.0+",
+    "support": {
+      "issues": "https://www.drupal.org/project/issues/jsonapi_boost",
+      "source": "https://www.drupal.org/project/jsonapi_boost"
+    }
+  }
+  
